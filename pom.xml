@@ -1,0 +1,119 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>processpuzzle-proxy</artifactId>
+  <name>ProcessPuzzle Proxy</name>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>com.processpuzzle</groupId>
+    <artifactId>processpuzzle-parent</artifactId>
+    <version>0.0.13</version>
+  </parent>
+
+  <properties>
+    <project.scm.id>github</project.scm.id>
+  </properties>
+
+  <scm>
+    <url>https://github.com/ZsZs/processpuzzle-proxy</url>
+    <connection>scm:git:https://github.com/ZsZs/processpuzzle-proxy.git</connection>
+    <developerConnection>scm:git:https://github.com/ZsZs/processpuzzle-proxy.git</developerConnection>
+    <tag>processpuzzle-proxy-0.0.1</tag>
+  </scm>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <images combine.self="override">
+            <image>
+              <alias>${project.artifactId}</alias>
+              <name>zsuffazs/${project.artifactId}</name>
+              <build>
+                <from>nginx:latest</from>
+                <tags>
+                  <tag>${project.version}</tag>
+                </tags>
+                <maintainer>zsolt.zsuffa@gmail.com</maintainer>
+                <workdir>${container.working.dir}</workdir>
+                <assembly>
+                  <basedir>${container.working.dir}</basedir>
+                  <mode>dir</mode>
+                  <inline xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+                    <id>proxy-conf</id>
+                    <fileSets>
+                      <fileSet>
+                        <directory>${project.basedir}/proxy/conf</directory>
+                        <includes>
+                          <include>nginx.conf</include>
+                        </includes>
+                        <outputDirectory>/etc/nginx/</outputDirectory>
+                      </fileSet>
+                      <fileSet>
+                        <directory>${project.basedir}/proxy/html</directory>
+                        <includes>
+                          <include>*.html</include>
+                        </includes>
+                        <outputDirectory>/usr/share/nginx/html/</outputDirectory>
+                      </fileSet>
+                    </fileSets>
+                  </inline>
+                </assembly>
+                <ports>
+                  <port>80</port>
+                  <port>443</port>
+                </ports>
+                <cmd>["nginx", "-g", "daemon off;"]</cmd>
+              </build>
+
+              <run>
+                <ports>
+                  <port>8000:80</port>
+                </ports>
+                <log>
+                  <enabled>true</enabled>
+                </log>
+                <wait>
+                  <http>
+                    <url>http://localhost:8000</url>
+                    <method>GET</method>
+                    <status>200..399</status>
+                  </http>
+                  <time>30000</time>
+                </wait>
+              </run>
+            </image>
+          </images>
+        </configuration><!--$NO-MVN-MAN-VER$-->
+
+        <executions>
+          <execution>
+            <id>build-start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>build</goal>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
