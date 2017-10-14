@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.processpuzzle</groupId>
     <artifactId>processpuzzle-parent</artifactId>
-    <version>0.0.13</version>
+    <version>0.0.14</version>
   </parent>
 
   <properties>
@@ -40,7 +40,7 @@
                 <maintainer>zsolt.zsuffa@gmail.com</maintainer>
                 <workdir>${container.working.dir}</workdir>
                 <assembly>
-                  <basedir>${container.working.dir}</basedir>
+                  <basedir>/</basedir>
                   <mode>dir</mode>
                   <inline xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
                     <id>proxy-conf</id>
